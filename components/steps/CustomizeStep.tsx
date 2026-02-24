@@ -485,6 +485,22 @@ export function CustomizeStep({ onBack, invitationId: invitationIdProp }: Custom
     alert("Ödeme sistemi yakında aktif olacak!");
   };
 
+  const cleanData = (obj: Record<string, unknown>): Record<string, unknown> => {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([, v]) => v !== undefined && v !== null)
+        .map(([k, v]) => [
+          k,
+          typeof v === "object" &&
+            !Array.isArray(v) &&
+            v !== null &&
+            Object.getPrototypeOf(v) === Object.prototype
+            ? cleanData(v as Record<string, unknown>)
+            : v,
+        ])
+    ) as Record<string, unknown>;
+  };
+
   const handleTestPublish = async () => {
     setPublishing(true);
     try {
@@ -497,19 +513,17 @@ export function CustomizeStep({ onBack, invitationId: invitationIdProp }: Custom
       const randomStr = Math.random().toString(36).substring(2, 8);
       const defaultSlug = `davetiye-${randomStr}`;
 
-      const dataToSave = Object.fromEntries(
-        Object.entries({
-          ...formData,
-          userId: user.uid,
-          payerName: payerName || "",
-          payerEmail: payerEmail || "",
-          slug: defaultSlug,
-          status: "active",
-          isPaid: true,
-          publishedAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        }).filter(([, v]) => v !== undefined)
-      );
+      const dataToSave = cleanData({
+        ...formData,
+        userId: user.uid,
+        payerName: payerName || "",
+        payerEmail: payerEmail || "",
+        slug: defaultSlug,
+        status: "active",
+        isPaid: true,
+        publishedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      } as Record<string, unknown>);
 
       if (invitationId) {
         await updateDoc(doc(db, "invitations", invitationId), dataToSave);
