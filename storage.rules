@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Media files - anyone can read, only authenticated users can write
+    match /media/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && request.resource.size < 52428800; // 50MB limit
+    }
+    
+    // OG images for social preview
+    match /og-images/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && request.resource.size < 5242880; // 5MB limit
+    }
+
+    // Audio files
+    match /audio/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && request.resource.size < 10485760; // 10MB limit
+    }
+  }
+}

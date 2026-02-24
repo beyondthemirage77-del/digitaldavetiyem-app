@@ -29,6 +29,18 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Firebase Storage CORS
+
+**Important:** For PNG/PDF downloads to work correctly, Firebase Storage must allow cross-origin requests. Configure CORS as follows:
+
+1. Ensure `cors.json` exists in the project root (see `cors.json`).
+2. Run:
+   ```bash
+   gsutil cors set cors.json gs://davetiye-app-a9bc8.firebasestorage.app
+   ```
+
+Without this, html2canvas cannot capture background images from Firebase Storage URLs.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
